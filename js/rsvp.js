@@ -32,7 +32,7 @@ function normaliza(s) {
   return (s || "")
     .toString()
     .toLowerCase()
-    .normalize("NFD").replace(/[̀-ͯ]/g, "") // quita acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // quita acentos
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -46,23 +46,46 @@ function anonimiza(nombre, apellidos) {
 
 function nombreCompleto(m) { return `${m.nombre} ${m.apellidos}`.trim(); }
 
+/* ---------- Índice de invitados (precalculado una sola vez) ----------
+   Con ~300 invitados un escaneo lineal ya es instantáneo (son
+   microsegundos), así que el "cuello de botella" real no es el tamaño
+   de la lista sino normalizar (minúsculas + quitar acentos) el nombre
+   y los apellidos de cada invitado en CADA búsqueda. Aquí lo hacemos
+   una única vez al cargar la página y lo reutilizamos en todas las
+   búsquedas, para que ni la primera ni la sección "buscar" tengan que
+   esperar nunca, aunque la lista crezca. */
+let INDICE_INVITADOS = null;
+
+function construirIndiceInvitados() {
+  const datos = window.INVITADOS && window.INVITADOS.grupos ? window.INVITADOS.grupos : [];
+  const indice = [];
+  for (const grupo of datos) {
+    for (const m of grupo.miembros) {
+      indice.push({
+        grupo,
+        miembro: m,
+        nombreNorm: normaliza(m.nombre),
+        apellidosNorm: normaliza(m.apellidos),
+      });
+    }
+  }
+  return indice;
+}
+
 /* ---------- Búsqueda del invitado ---------- */
 function buscarInvitado(nombreIn, apellidosIn) {
-  const datos = window.INVITADOS && window.INVITADOS.grupos ? window.INVITADOS.grupos : [];
+  if (!INDICE_INVITADOS) INDICE_INVITADOS = construirIndiceInvitados();
+
   const nN = normaliza(nombreIn);
   const aTokens = normaliza(apellidosIn).split(" ").filter(Boolean);
   if (!nN || aTokens.length === 0) return null;
 
-  for (const grupo of datos) {
-    for (const m of grupo.miembros) {
-      const mN = normaliza(m.nombre);
-      const mA = normaliza(m.apellidos);
-      const nombreOk = mN === nN || mN.startsWith(nN);
-      // todos los apellidos escritos deben aparecer en los apellidos del invitado
-      const apellidosOk = aTokens.every(t => mA.includes(t));
-      if (nombreOk && apellidosOk) {
-        return { grupo, miembroEncontrado: m };
-      }
+  for (const entrada of INDICE_INVITADOS) {
+    const nombreOk = entrada.nombreNorm === nN || entrada.nombreNorm.startsWith(nN);
+    // todos los apellidos escritos deben aparecer en los apellidos del invitado
+    const apellidosOk = aTokens.every(t => entrada.apellidosNorm.includes(t));
+    if (nombreOk && apellidosOk) {
+      return { grupo: entrada.grupo, miembroEncontrado: entrada.miembro };
     }
   }
   return null;
@@ -286,6 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
   elMensajeNovios = document.getElementById("mensaje-novios");
 
   if (!elBuscar) return; // no estamos en confirmar.html
+
+  INDICE_INVITADOS = construirIndiceInvitados(); // precalculado ya al cargar la página
 
   if (MODO_DEMO) {
     const banner = document.getElementById("banner-demo");
