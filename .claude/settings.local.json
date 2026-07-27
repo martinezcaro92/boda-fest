@@ -3,7 +3,8 @@
     "allow": [
       "Bash(curl -sI http://localhost:8791/img/mosaico.jpg)",
       "Bash(curl -sI http://localhost:8791/css/styles.css)",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(\"/c/Program Files/Google/Chrome/Application/chrome.exe\" --headless=new --no-sandbox --window-size=1000,1200 --virtual-time-budget=6000 --dump-dom \"http://localhost:8811/_test_msg.html\")"
     ]
   }
 }

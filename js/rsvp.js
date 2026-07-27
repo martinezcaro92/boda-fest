@@ -116,7 +116,7 @@ function buscarInvitado(nombreIn, apellidosIn) {
 
 /* ---------- Referencias DOM ---------- */
 let elBuscar, elNombre, elApellidos, elAvisoBuscar;
-let elPaso1, elPaso2, elGrupoMsg, elAsistentes, elFormConfirmar, elEstado, elMensajeNovios;
+let elPaso1, elPaso2, elGrupoMsg, elAsistentes, elFormConfirmar, elEstado;
 let grupoActivo = null;
 
 /* ---------- Render del Paso 2 ---------- */
@@ -229,6 +229,20 @@ function renderPaso2(resultado) {
     });
   });
 
+  // Si ya ha respondido todo el grupo, no hay nada que enviar: el botón
+  // pasa a funcionar como "volver a buscar" en vez de "enviar".
+  const hayPendientes = resultado.grupo.miembros.some(m => m.estado !== "si" && m.estado !== "no");
+  const btnEnviar = document.getElementById("btn-enviar");
+  if (btnEnviar) {
+    if (hayPendientes) {
+      btnEnviar.textContent = "🎉 Enviar confirmación";
+      delete btnEnviar.dataset.accion;
+    } else {
+      btnEnviar.textContent = "← Volver a introducir datos";
+      btnEnviar.dataset.accion = "volver";
+    }
+  }
+
   // Cambiar de paso
   elPaso1.classList.add("oculto");
   elPaso2.classList.remove("oculto");
@@ -278,12 +292,10 @@ function setEstado(tipo, mensaje) {
 async function enviar(datos) {
   const btn = document.getElementById("btn-enviar");
   const payloadAsistentes = JSON.stringify(datos.asistentes);
-  const mensajeNovios = elMensajeNovios.value.trim();
 
   const fd = new FormData();
   fd.append("timestamp", new Date().toISOString());
   fd.append("grupoId", grupoActivo ? grupoActivo.id : "");
-  fd.append("mensajeNovios", mensajeNovios);
   fd.append("asistentes", payloadAsistentes);
 
   // MODO DEMOSTRACIÓN: no se envía nada
@@ -297,7 +309,6 @@ async function enviar(datos) {
       escaparHTML(JSON.stringify({
         timestamp: fd.get("timestamp"),
         grupoId: fd.get("grupoId"),
-        mensajeNovios,
         asistentes: datos.asistentes
       }, null, 2)) + "</pre></details>");
     exitoFinal();
@@ -323,6 +334,15 @@ async function enviar(datos) {
 function exitoFinal() {
   // Ocultamos el formulario tras confirmar
   elFormConfirmar.querySelector("#zona-formulario").classList.add("oculto");
+}
+
+/* ---------- Volver al paso 1 (buscar otro nombre) ---------- */
+function volverABuscar() {
+  elPaso2.classList.add("oculto");
+  elPaso1.classList.remove("oculto");
+  elFormConfirmar.querySelector("#zona-formulario").classList.remove("oculto");
+  elEstado.hidden = true;
+  elPaso1.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function escaparHTML(s) {
@@ -365,7 +385,6 @@ document.addEventListener("DOMContentLoaded", () => {
   elAsistentes    = document.getElementById("asistentes-cont");
   elFormConfirmar = document.getElementById("form-confirmar");
   elEstado        = document.getElementById("estado-envio");
-  elMensajeNovios = document.getElementById("mensaje-novios");
 
   if (!elBuscar) return; // no estamos en confirmar.html
 
@@ -393,17 +412,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Volver a buscar
   const volver = document.getElementById("btn-volver");
-  if (volver) volver.addEventListener("click", () => {
-    elPaso2.classList.add("oculto");
-    elPaso1.classList.remove("oculto");
-    elFormConfirmar.querySelector("#zona-formulario").classList.remove("oculto");
-    elEstado.hidden = true;
-    elPaso1.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+  if (volver) volver.addEventListener("click", volverABuscar);
 
   // Paso 2: confirmar
   elFormConfirmar.addEventListener("submit", (e) => {
     e.preventDefault();
+
+    // Todo el grupo ya había respondido: el botón actúa como "volver".
+    const btnEnviar = document.getElementById("btn-enviar");
+    if (btnEnviar && btnEnviar.dataset.accion === "volver") {
+      volverABuscar();
+      return;
+    }
+
     const datos = recogerDatos();
     if (datos.faltaDecision) {
       setEstado("error", "Indica si cada persona asistirá o no antes de enviar. 🙏");

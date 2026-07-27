@@ -74,8 +74,8 @@ La lista de invitados vive en una **Google Sheet con dos pestañas** (ver
   esa persona responde, y a partir de ahí queda bloqueada (no puede volver a
   confirmar). "Grupo" agrupa a quien se sienta junto (p. ej. "Familia Pérez").
 - **"Confirmados"**: solo las personas que han dicho que **sí** asisten, una
-  fila por persona, con alergias, observaciones, canción y el mensaje a los
-  novios. Quien dice que no, no aparece aquí (solo se marca la ❌ en Invitados).
+  fila por persona, con alergias, observaciones y canción. Quien dice que no,
+  no aparece aquí (solo se marca la ❌ en Invitados).
 
 Flujo del formulario:
 
@@ -93,8 +93,7 @@ Flujo del formulario:
     de idea).
 - **Paso 2:** por cada asistente se indica si asiste, sus **alergias/intolerancias**
   (selección múltiple; *Ninguna* es excluyente), **observaciones** (sugerencia de
-  vegetariano/vegano) y **la canción que no puede faltar**. Hay un **mensaje libre
-  para los novios** siempre visible.
+  vegetariano/vegano) y **la canción que no puede faltar**.
 - **Envío:** `FormData` + `fetch(..., { method: "POST", mode: "no-cors" })`. El
   Apps Script marca ✅/❌ en "Invitados" para cada asistente y, si dijo que sí,
   añade también su fila en "Confirmados".

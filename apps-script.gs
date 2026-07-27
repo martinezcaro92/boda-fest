@@ -18,8 +18,8 @@
  *
  *  2) "Confirmados" — SOLO las personas que han dicho que SÍ
  *     asisten, una fila por persona, con el detalle del
- *     formulario (alergias, canción, mensaje...). Quien dice que
- *     no, no aparece aquí: solo se marca la ❌ en "Invitados".
+ *     formulario (alergias, canción...). Quien dice que no, no
+ *     aparece aquí: solo se marca la ❌ en "Invitados".
  *
  *  Pasos de instalación al final de este archivo.
  * ============================================================
@@ -42,8 +42,7 @@ var CABECERAS_CONFIRMADOS = [
   'Nombre completo',
   'Alergias / intolerancias',
   'Observaciones',
-  'Canción imprescindible',
-  'Mensaje a los novios'
+  'Canción imprescindible'
 ];
 
 /* ---------- Utilidad: coger o crear una hoja con su cabecera ---------- */
@@ -120,7 +119,6 @@ function doPost(e) {
     var params = (e && e.parameter) ? e.parameter : {};
     var timestamp = params.timestamp || new Date().toISOString();
     var grupoId = params.grupoId || '';
-    var mensajeNovios = params.mensajeNovios || '';
 
     var asistentes = [];
     try {
@@ -154,8 +152,7 @@ function doPost(e) {
           a.nombreCompleto || '',
           alergias,
           a.observaciones || '',
-          a.cancion || '',
-          mensajeNovios
+          a.cancion || ''
         ]);
       }
     });
