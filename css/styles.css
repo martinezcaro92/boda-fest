@@ -66,6 +66,16 @@ body {
   line-height: 1.6;
   font-size: 18px;
 }
+@media (max-width: 720px) {
+  body {
+    /* "fixed" es poco fiable en navegadores móviles (puede repintar mal
+       y dejar tramos en negro al hacer scroll); en móvil el marco es
+       además mucho más fino, así que reducimos el tamaño del mosaico
+       para que se vea nítido y completo en pantallas pequeñas. */
+    background-attachment: scroll;
+    background-size: 200px auto;
+  }
+}
 img, video { max-width: 100%; display: block; }
 a { color: var(--negro); }
 
