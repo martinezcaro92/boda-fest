@@ -86,9 +86,9 @@ function montarPie() {
   <footer class="site-footer">
     <div class="marca">${corazonSVG(30)} ${CONFIG.monograma}</div>
     <p>${CONFIG.novios} · Tiempos de Amor · Wedding Fest</p>
-    <p>Totana · 17 OCT 2026</p>
-    <p><a href="mailto:hola@${CONFIG.dominio}">hola@${CONFIG.dominio}</a> · #TiemposDeAmor</p>
-    <p style="opacity:.6">© ${anio} · Hecho con amor.</p>
+    <p>17 OCT 2026  · Totana</p>
+    <p>#TiemposDeAmor</p>
+    <p style="opacity:.6">© ${anio} · Hecho con amor por José Manuel Mona</p>
   </footer>`;
 }
 

@@ -29,11 +29,11 @@
   --fuente-texto:  'Barlow', system-ui, -apple-system, sans-serif;
 
   --ancho: 760px;              /* una sola columna de contenido */
-  --marco-ancho: 128px;        /* grosor del marco de mosaico exterior */
+  --marco-ancho: 20px;         /* grosor del marco de mosaico exterior */
 }
 
 @media (max-width: 720px) {
-  :root { --marco-ancho: 56px; }
+  :root { --marco-ancho: 20px; }
 }
 
 /* ---------- 2. Reset básico ---------- */
@@ -60,7 +60,6 @@ body {
   background-color: var(--negro);
   background-image: url("../img/mosaico.jpg");
   background-repeat: repeat;
-  background-position: top center;
   background-size: 50% auto;
   background-attachment: fixed;
   line-height: 1.6;
@@ -294,9 +293,14 @@ main {
 .hero { text-align: center; padding-top: 12px; }
 .hero__fest {
   font-family: var(--fuente-titulo);
-  letter-spacing: 3px;
+  letter-spacing: 0.12em;
   color: var(--negro);
-  font-size: 1rem;
+  /* fluido: el hueco real disponible es el ancho de pantalla menos el
+     marco de mosaico y el margen del .contenedor, que son fijos en
+     píxeles -por eso el término fijo (-8.5px) además del "vw"-, para
+     que el texto quepa en una sola línea con su margen tanto en
+     móviles pequeños como grandes. */
+  font-size: clamp(0.4rem, calc(4.5vw - 8.1px), 1rem);
 }
 .hero__nombres {
   font-size: clamp(3rem, 13vw, 6rem);
