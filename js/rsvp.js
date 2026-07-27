@@ -1,6 +1,6 @@
 /* ============================================================
    TIEMPOS DE AMOR — Formulario de asistencia (RSVP)
-   Paso 1: buscar invitado en la lista (window.INVITADOS)
+   Paso 1: buscar invitado en la lista (leída de Google Sheets)
    Paso 2: confirmar asistentes, alergias, canción y mensaje
    Envío: fetch no-cors + FormData a Google Apps Script
    ============================================================ */
@@ -8,9 +8,12 @@
 /* ------------------------------------------------------------
    1) PEGA AQUÍ LA URL DE TU APPS SCRIPT (termina en /exec)
    Mientras contenga "PEGA_AQUI" el formulario funciona en
-   MODO DEMOSTRACIÓN: valida y muestra el éxito SIN enviar nada.
+   MODO DEMOSTRACIÓN: usa la lista de ejemplo de js/invitados.js
+   y valida/muestra el éxito SIN enviar ni leer nada de verdad.
+   En cuanto pegues tu URL real, la búsqueda lee en vivo la
+   pestaña "Invitados" de tu Google Sheet (ver apps-script.gs).
    ------------------------------------------------------------ */
-const SCRIPT_URL = "https://script.google.com/macros/s/PEGA_AQUI_TU_ID/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXSpA4Zo6BJ7_CY2xKSm-wLGFJAni7mbS-A65JTTc1RZTTGkFOJusNlkFOk5RQtK1kRg/exec";
 const MODO_DEMO = SCRIPT_URL.includes("PEGA_AQUI");
 
 /* Opciones de alergias / intolerancias ("ninguna" es excluyente) */
@@ -46,20 +49,40 @@ function anonimiza(nombre, apellidos) {
 
 function nombreCompleto(m) { return `${m.nombre} ${m.apellidos}`.trim(); }
 
+/* ---------- Carga de invitados ----------
+   En modo demo usa la lista de ejemplo de window.INVITADOS (confirmado:
+   true/false). En modo real pide la pestaña "Invitados" al Apps Script
+   por GET: cada miembro llega con "fila" (fila real en la Sheet, para
+   poder marcarla luego) y "estado" ("pendiente" | "si" | "no"). */
+function normalizarMiembro(m) {
+  const estado = m.estado || (m.confirmado ? "si" : "pendiente");
+  return { fila: m.fila != null ? m.fila : null, nombre: m.nombre, apellidos: m.apellidos, estado };
+}
+
+async function cargarInvitados() {
+  if (MODO_DEMO) {
+    return (window.INVITADOS && window.INVITADOS.grupos) ? window.INVITADOS.grupos : [];
+  }
+  const resp = await fetch(SCRIPT_URL, { method: "GET" });
+  const datos = await resp.json();
+  if (!datos || !datos.ok) throw new Error((datos && datos.error) || "Respuesta inválida del servidor");
+  return datos.grupos || [];
+}
+
 /* ---------- Índice de invitados (precalculado una sola vez) ----------
    Con ~300 invitados un escaneo lineal ya es instantáneo (son
    microsegundos), así que el "cuello de botella" real no es el tamaño
    de la lista sino normalizar (minúsculas + quitar acentos) el nombre
    y los apellidos de cada invitado en CADA búsqueda. Aquí lo hacemos
-   una única vez al cargar la página y lo reutilizamos en todas las
-   búsquedas, para que ni la primera ni la sección "buscar" tengan que
-   esperar nunca, aunque la lista crezca. */
+   una única vez al cargar la página (justo después de recibir los
+   datos) y lo reutilizamos en todas las búsquedas, para que ninguna
+   tenga que esperar, aunque la lista crezca. */
 let INDICE_INVITADOS = null;
 
-function construirIndiceInvitados() {
-  const datos = window.INVITADOS && window.INVITADOS.grupos ? window.INVITADOS.grupos : [];
+function construirIndiceInvitados(grupos) {
   const indice = [];
-  for (const grupo of datos) {
+  for (const grupoIn of grupos || []) {
+    const grupo = { id: grupoIn.id, miembros: (grupoIn.miembros || []).map(normalizarMiembro) };
     for (const m of grupo.miembros) {
       indice.push({
         grupo,
@@ -74,13 +97,13 @@ function construirIndiceInvitados() {
 
 /* ---------- Búsqueda del invitado ---------- */
 function buscarInvitado(nombreIn, apellidosIn) {
-  if (!INDICE_INVITADOS) INDICE_INVITADOS = construirIndiceInvitados();
+  const indice = INDICE_INVITADOS || [];
 
   const nN = normaliza(nombreIn);
   const aTokens = normaliza(apellidosIn).split(" ").filter(Boolean);
   if (!nN || aTokens.length === 0) return null;
 
-  for (const entrada of INDICE_INVITADOS) {
+  for (const entrada of indice) {
     const nombreOk = entrada.nombreNorm === nN || entrada.nombreNorm.startsWith(nN);
     // todos los apellidos escritos deben aparecer en los apellidos del invitado
     const apellidosOk = aTokens.every(t => entrada.apellidosNorm.includes(t));
@@ -103,11 +126,17 @@ function renderPaso2(resultado) {
   const anon = anonimiza(encontrado.nombre, encontrado.apellidos);
 
   // Cabecera / mensaje según estado
-  if (encontrado.confirmado) {
+  if (encontrado.estado === "si") {
     elGrupoMsg.className = "aviso aviso--ok";
     elGrupoMsg.innerHTML =
       `Sabemos que estás tan deseoso/a como nosotros de que llegue el gran día :). ` +
       `<strong>Tu asistencia ya ha sido confirmada.</strong>`;
+    elGrupoMsg.hidden = false;
+  } else if (encontrado.estado === "no") {
+    elGrupoMsg.className = "aviso aviso--info";
+    elGrupoMsg.innerHTML =
+      `Ya nos dijiste que no podrás acompañarnos. Si algo ha cambiado, escríbenos directamente a ` +
+      `<a href="mailto:hola@tiemposdeamor.com">hola@tiemposdeamor.com</a>.`;
     elGrupoMsg.hidden = false;
   } else {
     elGrupoMsg.className = "invitado-resultado";
@@ -124,11 +153,16 @@ function renderPaso2(resultado) {
     const card = document.createElement("div");
     card.className = "asistente-card";
     card.dataset.nombreCompleto = nombreCompleto(m);
+    card.dataset.fila = m.fila != null ? String(m.fila) : "";
 
-    if (m.confirmado) {
+    if (m.estado === "si" || m.estado === "no") {
+      const clase = m.estado === "si" ? "aviso--ok" : "aviso--info";
+      const texto = m.estado === "si"
+        ? "✅ Ya ha confirmado su asistencia. ¡Gracias!"
+        : "Ya nos avisó de que no podrá asistir.";
       card.innerHTML =
         `<h3>${anonM}</h3>` +
-        `<p class="aviso aviso--ok" style="margin:0">✅ Ya ha confirmado su asistencia. ¡Gracias!</p>`;
+        `<p class="aviso ${clase}" style="margin:0">${texto}</p>`;
       card.dataset.yaConfirmado = "true";
       elAsistentes.appendChild(card);
       return;
@@ -221,6 +255,7 @@ function recogerDatos() {
       cancion = card.querySelector(".cancion").value.trim();
     }
     asistentes.push({
+      fila: card.dataset.fila ? Number(card.dataset.fila) : null,
       nombreCompleto: card.dataset.nombreCompleto,
       asiste,
       alergias,
@@ -294,6 +329,30 @@ function escaparHTML(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/* ---------- Carga inicial de la lista de invitados ----------
+   Deshabilita el botón "Buscar" mientras se carga (en modo real es una
+   petición de red al Apps Script) para que nadie busque contra una
+   lista vacía, y avisa si la carga falla. */
+async function iniciarCargaInvitados() {
+  const btnBuscarSubmit = elBuscar.querySelector('button[type="submit"]');
+  if (btnBuscarSubmit) btnBuscarSubmit.disabled = true;
+  elAvisoBuscar.className = "aviso aviso--info";
+  elAvisoBuscar.textContent = "Cargando la lista de invitados…";
+  elAvisoBuscar.hidden = false;
+
+  try {
+    const grupos = await cargarInvitados();
+    INDICE_INVITADOS = construirIndiceInvitados(grupos);
+    elAvisoBuscar.hidden = true;
+  } catch (err) {
+    elAvisoBuscar.className = "aviso aviso--error";
+    elAvisoBuscar.textContent =
+      "No hemos podido cargar la lista de invitados. Recarga la página o inténtalo de nuevo en unos minutos.";
+  } finally {
+    if (btnBuscarSubmit) btnBuscarSubmit.disabled = false;
+  }
+}
+
 /* ---------- Arranque ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   elBuscar        = document.getElementById("form-buscar");
@@ -310,12 +369,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!elBuscar) return; // no estamos en confirmar.html
 
-  INDICE_INVITADOS = construirIndiceInvitados(); // precalculado ya al cargar la página
-
   if (MODO_DEMO) {
     const banner = document.getElementById("banner-demo");
     if (banner) banner.hidden = false;
   }
+
+  iniciarCargaInvitados();
 
   // Paso 1: buscar
   elBuscar.addEventListener("submit", (e) => {
