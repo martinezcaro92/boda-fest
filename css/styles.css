@@ -69,11 +69,12 @@ body {
 @media (max-width: 720px) {
   body {
     /* "fixed" es poco fiable en navegadores móviles (puede repintar mal
-       y dejar tramos en negro al hacer scroll); en móvil el marco es
-       además mucho más fino, así que reducimos el tamaño del mosaico
-       para que se vea nítido y completo en pantallas pequeñas. */
+       y dejar tramos en negro al hacer scroll), así que en móvil el
+       mosaico se desplaza con la página en vez de quedar fijo. El
+       tamaño se deja grande (90% del ancho de pantalla) para que apenas
+       se repita y no se note como un patrón duplicado. */
     background-attachment: scroll;
-    background-size: 200px auto;
+    background-size: 90% auto;
   }
 }
 img, video { max-width: 100%; display: block; }
