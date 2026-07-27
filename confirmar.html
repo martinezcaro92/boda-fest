@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirmar asistencia · Ana &amp; Adrián — Tiempos de Amor</title>
+  <meta name="description" content="Confirma tu asistencia a la boda de Ana y Adrián: busca tu nombre, indica alergias y déjanos tu canción imprescindible.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Covered+By+Your+Grace&amp;family=Barlow:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <div id="site-header"></div>
+
+  <main id="contenido">
+    <div class="contenedor">
+
+      <section class="seccion">
+        <span class="chip chip--rojo">Confirmar asistencia</span>
+        <h1>Consigue tu entrada</h1>
+        <p>
+          Busca tu nombre en la lista, confírmate a ti y a tu acompañante e indícanos si
+          tienes alguna alergia. Fecha límite: <strong>15 de septiembre de 2026</strong>.
+        </p>
+      </section>
+
+      <!-- Aviso de modo demostración (lo muestra js/rsvp.js si SCRIPT_URL no está configurada) -->
+      <div id="banner-demo" class="aviso aviso--demo" hidden>
+        🧪 <strong>Modo demostración activo.</strong> El formulario valida y enseña el
+        resultado, pero todavía no envía datos. Configura <code>SCRIPT_URL</code> en
+        <code>js/rsvp.js</code> para activar el envío a Google Sheets.
+      </div>
+
+      <!-- ===== PASO 1: BUSCAR ===== -->
+      <section id="paso1" class="seccion bloque" aria-labelledby="titulo-paso1">
+        <h2 id="titulo-paso1">1 · Encuéntrate en la lista</h2>
+        <form id="form-buscar" novalidate>
+          <div class="buscador">
+            <div class="form-grupo">
+              <label for="buscar-nombre">Nombre</label>
+              <input type="text" id="buscar-nombre" name="nombre" autocomplete="given-name" required>
+            </div>
+            <div class="form-grupo">
+              <label for="buscar-apellidos">Apellidos</label>
+              <input type="text" id="buscar-apellidos" name="apellidos" autocomplete="family-name" required>
+            </div>
+          </div>
+          <p style="margin:16px 0 0">
+            <button type="submit" class="btn btn--negro">🔎 Buscar</button>
+          </p>
+        </form>
+        <div id="aviso-buscar" class="aviso" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <!-- ===== PASO 2: CONFIRMAR ===== -->
+      <section id="paso2" class="seccion oculto" aria-labelledby="titulo-paso2">
+        <p style="margin-bottom:14px">
+          <button type="button" class="btn btn--amarillo" id="btn-volver">← Buscar otro nombre</button>
+        </p>
+        <h2 id="titulo-paso2">2 · Confirma tu asistencia</h2>
+
+        <div id="grupo-mensaje" role="status" aria-live="polite" hidden></div>
+
+        <form id="form-confirmar" novalidate>
+          <div id="zona-formulario">
+            <!-- Tarjetas de asistentes (generadas por js/rsvp.js) -->
+            <div id="asistentes-cont"></div>
+
+            <!-- Mensaje libre para los novios (siempre visible) -->
+            <div class="bloque">
+              <div class="form-grupo" style="margin-bottom:0">
+                <label for="mensaje-novios">Un mensaje para los novios 💌 <span class="pista">(opcional, siempre bienvenido)</span></label>
+                <textarea id="mensaje-novios" name="mensajeNovios"
+                  placeholder="Escríbenos lo que quieras: buenos deseos, una anécdota, ganas de fiesta..."></textarea>
+              </div>
+            </div>
+
+            <p>
+              <button type="submit" class="btn btn--bloque" id="btn-enviar">🎉 Enviar confirmación</button>
+            </p>
+          </div>
+
+          <div id="estado-envio" class="aviso" role="status" aria-live="polite" hidden></div>
+        </form>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- Orden importante: lista de invitados -> lógica RSVP -> compartido -->
+  <script src="js/invitados.js"></script>
+  <script src="js/rsvp.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

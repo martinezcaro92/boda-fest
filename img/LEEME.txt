@@ -1,0 +1,26 @@
+IMÁGENES Y VÍDEO — carpeta img/
+================================
+
+Coloca aquí tus archivos reales. La web ya está preparada para usarlos;
+solo tienes que añadir los ficheros con estos nombres (o cambiar la ruta
+en el HTML correspondiente).
+
+1) VÍDEO DE PORTADA (vertical 9:16)
+   - portada.mp4        -> vídeo vertical de los novios
+   - portada-poster.jpg -> imagen que se ve mientras carga el vídeo
+   Ya está activo en index.html (sección ".hero-media"); solo tienes que
+   añadir estos ficheros con ese nombre.
+
+2) CARTEL ILUSTRADO
+   - cartel.png -> ya incluido, se muestra junto al vídeo en la portada.
+
+3) MOSAICO (marco decorativo del fondo de toda la web)
+   - mosaico.jpg -> ya incluido, se usa como fondo repetido en css/styles.css
+     (no se toca desde el HTML de las páginas).
+
+4) FAVICON
+   - favicon.svg  -> YA incluido (corazón rojo con "TDAF" y fondo amarillo).
+     No necesitas hacer nada; edítalo si quieres cambiarlo.
+
+Consejo: comprime el vídeo (por ejemplo con HandBrake) para que la web
+cargue rápido en el móvil. Un MP4 de pocos MB es más que suficiente.

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -sI http://localhost:8791/img/mosaico.jpg)",
+      "Bash(curl -sI http://localhost:8791/css/styles.css)",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_comentario": "Lista de invitados de EJEMPLO (4 parejas con nombres inventados). Edita a tu gusto. Cada 'grupo' es una invitación: las personas del mismo grupo se sentarán juntas. 'confirmado: true' simula a alguien que YA confirmó (para ver el mensaje correspondiente en la web). IMPORTANTE: esta web carga la lista desde js/invitados.js para que funcione también al abrir los ficheros en local (file://). Si editas aquí, copia también el cambio en js/invitados.js (o al revés).",
+  "grupos": [
+    {
+      "id": "g1",
+      "miembros": [
+        { "nombre": "Lucía", "apellidos": "Martín Pérez", "confirmado": false },
+        { "nombre": "Pablo", "apellidos": "Sánchez Ruiz", "confirmado": false }
+      ]
+    },
+    {
+      "id": "g2",
+      "miembros": [
+        { "nombre": "Carla", "apellidos": "Gómez Ortega", "confirmado": true },
+        { "nombre": "Diego", "apellidos": "Navarro León", "confirmado": false }
+      ]
+    },
+    {
+      "id": "g3",
+      "miembros": [
+        { "nombre": "Marta", "apellidos": "Ferrer Gil", "confirmado": false },
+        { "nombre": "Javier", "apellidos": "Romero Díaz", "confirmado": false }
+      ]
+    },
+    {
+      "id": "g4",
+      "miembros": [
+        { "nombre": "Elena", "apellidos": "Castro Vidal", "confirmado": false },
+        { "nombre": "Hugo", "apellidos": "Moreno Serra", "confirmado": false }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ana &amp; Adrián · Tiempos de Amor — Wedding Fest</title>
+  <meta name="description" content="Boda de Ana y Adrián · 17 de octubre de 2026 · Totana. Tiempos de Amor, nuestro wedding fest.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Covered+By+Your+Grace&amp;family=Barlow:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <div id="site-header"></div>
+
+  <main id="contenido">
+    <div class="contenedor">
+
+      <!-- ===== PORTADA ===== -->
+      <section class="seccion hero" aria-labelledby="titulo-portada">
+        <p class="hero__fest">HECHO EN TIEMPOS DE AMOR · WEDDING FEST</p>
+        <h1 class="hero__nombres" id="titulo-portada">
+          Ana <span class="hero__amp">&amp;</span> Adrián
+        </h1>
+        <p class="hero__fecha">SÁBADO · 17 OCT 2026 · TOTANA</p>
+      </section>
+
+    </div>
+
+    <!-- ===== VÍDEO + CONTENIDO =====
+         Sección a ancho completo (fuera del .contenedor de 760px) para
+         que se vea grande. En escritorio van en fila: a la izquierda el
+         cartel + la intro + el cierre, y a la derecha el vídeo, que
+         queda fijo (position: sticky) durante todo ese scroll, así
+         siempre se está reproduciendo, sea cual sea la altura de la
+         página en la que se encuentre. En móvil van en columna: primero
+         el vídeo, después el resto del contenido. -->
+    <section class="seccion hero-media" aria-label="Vídeo y contenido de Tiempos de Amor">
+      <div class="media-marco">
+        <video id="video-portada" loop playsinline poster="img/portada-poster.jpg">
+          <source src="img/portada.mp4" type="video/mp4">
+        </video>
+        <button type="button" class="video-sonido" id="btn-sonido" hidden>🔇 Activar sonido</button>
+      </div>
+
+      <div class="hero-media__col">
+        <img class="cartel-img" src="img/cartel.png" alt="Cartel ilustrado Tiempos de Amor · Ana &amp; Adrián">
+
+        <!-- ===== INTRO ===== -->
+        <section class="seccion bloque">
+          <span class="chip chip--rojo">La cita</span>
+          <h2>Nos casamos y lo celebramos a lo grande</h2>
+          <p>
+            Bienvenido/a a <strong>Tiempos de Amor</strong>, nuestro festival de un solo día
+            y de un solo "Sí". El <strong>sábado 17 de octubre de 2026</strong> nos daremos el
+            "sí quiero" en Totana y queremos vivirlo contigo: ceremonia, cóctel, banquete y
+            fiesta hasta que el cuerpo aguante.
+          </p>
+          <p>
+            En esta web tienes toda la info del día, cómo llegar y el formulario para
+            confirmar tu asistencia. Échale un ojo con calma. 🎸
+          </p>
+          <p style="text-align:center; margin-top:20px">
+            <a class="btn btn--negro" href="confirmar.html">Confirmar asistencia →</a>
+          </p>
+        </section>
+
+        <!-- ===== MENSAJE DE AGRADECIMIENTO (cierre) ===== -->
+        <section class="seccion gracias" aria-labelledby="titulo-gracias">
+          <h2 id="titulo-gracias">Gracias por venir a nuestro festival</h2>
+          <p>
+            De verdad: que estés aquí, leyendo esto, ya nos hace inmensamente felices.
+            Gracias por acompañarnos, por celebrar el amor con nosotros y por formar
+            parte de uno de los mejores días de nuestra vida.
+          </p>
+          <p style="margin-bottom:0"><strong>Con todo nuestro cariño, Ana &amp; Adrián.</strong></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/main.js"></script>
+</body>
+</html>

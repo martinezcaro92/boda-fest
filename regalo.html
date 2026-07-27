@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regalo · Ana &amp; Adrián — Tiempos de Amor</title>
+  <meta name="description" content="Si quieres hacernos un regalo, aquí tienes nuestros datos. Lo más importante es tenerte con nosotros.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Covered+By+Your+Grace&amp;family=Barlow:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <div id="site-header"></div>
+
+  <main id="contenido">
+    <div class="contenedor">
+
+      <section class="seccion">
+        <span class="chip chip--morado">Regalo de boda</span>
+        <h1>El mejor regalo eres tú</h1>
+      </section>
+
+      <section class="seccion bloque">
+        <p>
+          Lo primero y más importante: <strong>tenerte con nosotros ese día ya es el mejor
+          de los regalos</strong>. No queremos que te compliques.
+        </p>
+        <p>
+          Ahora bien, si además quieres ayudarnos a arrancar esta nueva etapa juntos
+          (o a financiar unos cuantos "temazos" más del festival), te dejamos aquí
+          nuestros datos. Cualquier detalle lo recibiremos con muchísimo cariño. 💛
+        </p>
+      </section>
+
+      <!-- ===== CUADRO IBAN ===== -->
+      <section class="seccion" aria-labelledby="titulo-iban">
+        <h2 id="titulo-iban" style="text-align:center">Nuestra cuenta</h2>
+        <div class="iban-caja">
+          <p class="titular"><strong>Titulares:</strong> Ana Rubio Cánovas y Adrián González Abellán</p>
+          <!-- EDITA aquí el IBAN real (y el data-iban del botón) -->
+          <p class="iban" id="iban-valor">ES00 0000 0000 0000 0000 0000</p>
+          <button class="btn btn--verde" id="btn-copiar-iban"
+                  data-iban="ES00 0000 0000 0000 0000 0000">
+            📋 Copiar IBAN
+          </button>
+          <p class="copiado-aviso" id="iban-copiado" aria-live="polite"></p>
+        </div>
+        <p class="pista" style="text-align:center; margin-top:14px">
+          [Sustituye el IBAN de ejemplo por el real en dos sitios: el texto
+          <code>#iban-valor</code> y el atributo <code>data-iban</code> del botón.]
+        </p>
+      </section>
+
+      <section class="seccion gracias">
+        <h2>¡Gracias de corazón!</h2>
+        <p style="margin-bottom:0">
+          Con regalo o sin él, lo que de verdad nos hace ilusión es celebrarlo contigo.
+          Nos vemos en el festival. 🎶
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/main.js"></script>
+</body>
+</html>
