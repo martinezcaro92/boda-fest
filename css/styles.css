@@ -29,7 +29,7 @@
   --fuente-texto:  'Barlow', system-ui, -apple-system, sans-serif;
 
   --ancho: 760px;              /* una sola columna de contenido */
-  --marco-ancho: 20px;         /* grosor del marco de mosaico exterior */
+  --marco-ancho: 64px;         /* grosor del marco de mosaico exterior */
 }
 
 @media (max-width: 720px) {
