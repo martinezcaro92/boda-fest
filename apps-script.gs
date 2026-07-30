@@ -45,6 +45,15 @@ var CABECERAS_CONFIRMADOS = [
   'Canción imprescindible'
 ];
 
+/* La lectura de la Sheet en sí es rápida incluso con ~400 filas (una
+   sola llamada getRange().getValues()); lo que de verdad pesa en cada
+   petición es el coste fijo de arrancar el script. CacheService evita
+   repetir ESE coste: mientras la caché esté viva, doGet ni siquiera
+   toca la Sheet. Se invalida sola en cuanto alguien confirma (doPost),
+   así que nunca sirve un estado "pendiente" desactualizado. */
+var CACHE_KEY_INVITADOS = 'invitados_json_v1';
+var CACHE_SEGUNDOS = 60;
+
 /* ---------- Utilidad: coger o crear una hoja con su cabecera ---------- */
 function obtenerHoja(nombre, cabeceras) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -66,6 +75,12 @@ function obtenerHoja(nombre, cabeceras) {
    de CORS: un GET así se considera una petición "simple". */
 function doGet(e) {
   try {
+    var cache = CacheService.getScriptCache();
+    var cacheado = cache.get(CACHE_KEY_INVITADOS);
+    if (cacheado) {
+      return ContentService.createTextOutput(cacheado).setMimeType(ContentService.MimeType.JSON);
+    }
+
     var hoja = obtenerHoja(HOJA_INVITADOS, CABECERAS_INVITADOS);
     var filas = hoja.getLastRow();
     var gruposPorId = {};
@@ -97,10 +112,11 @@ function doGet(e) {
     }
 
     var grupos = ordenGrupos.map(function (g) { return gruposPorId[g]; });
+    var salida = JSON.stringify({ ok: true, grupos: grupos });
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, grupos: grupos }))
-      .setMimeType(ContentService.MimeType.JSON);
+    cache.put(CACHE_KEY_INVITADOS, salida, CACHE_SEGUNDOS);
+
+    return ContentService.createTextOutput(salida).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, error: String(error) }))
@@ -156,6 +172,12 @@ function doPost(e) {
         ]);
       }
     });
+
+    // Si se ha escrito algo nuevo, la lista cacheada para doGet ya está
+    // desactualizada: se invalida para que la próxima búsqueda lea fresco.
+    if (procesados > 0) {
+      CacheService.getScriptCache().remove(CACHE_KEY_INVITADOS);
+    }
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true, procesados: procesados, omitidos: omitidos }))
@@ -225,4 +247,12 @@ function doPost(e) {
    usando fetch en modo "no-cors" (POST), así que ahí el navegador
    no lee la respuesta — es normal y esperado; las filas y las
    marcas ✅/❌ se actualizan igualmente en la Sheet.
+
+   NOTA sobre velocidad: la lista de invitados se cachea 60 segundos
+   (en el propio script y en el navegador de cada visitante) para que
+   la búsqueda no tenga que releer la Sheet en cada visita. Si añades
+   o editas un invitado a mano en "Invitados", el cambio puede tardar
+   hasta un minuto en verse reflejado en la web. En cuanto alguien
+   confirma desde el formulario, la caché se invalida al momento, así
+   que eso sí es instantáneo.
    ============================================================ */

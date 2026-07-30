@@ -59,13 +59,52 @@ function normalizarMiembro(m) {
   return { fila: m.fila != null ? m.fila : null, nombre: m.nombre, apellidos: m.apellidos, estado };
 }
 
+/* Google Apps Script tarda un buen pico fijo en arrancar en CADA
+   petición (autenticación, cold start...), venga la Sheet con 11 filas
+   o con 400: apenas varía. Ese coste no se puede evitar en la primera
+   carga, pero si el usuario recarga la página, vuelve a "Buscar otro
+   nombre" o repite la búsqueda poco después, no tiene sentido pagarlo
+   otra vez -> se guarda la respuesta en sessionStorage un ratito. */
+const CACHE_KEY_INVITADOS = "invitados_cache_v1";
+const CACHE_MS_INVITADOS = 60000; // 1 minuto
+
+function leerCacheInvitados() {
+  try {
+    const guardado = sessionStorage.getItem(CACHE_KEY_INVITADOS);
+    if (!guardado) return null;
+    const { ts, grupos } = JSON.parse(guardado);
+    if (Date.now() - ts > CACHE_MS_INVITADOS) return null;
+    return grupos;
+  } catch (e) {
+    return null; // sessionStorage no disponible (modo privado, etc.)
+  }
+}
+
+function guardarCacheInvitados(grupos) {
+  try {
+    sessionStorage.setItem(CACHE_KEY_INVITADOS, JSON.stringify({ ts: Date.now(), grupos }));
+  } catch (e) {
+    // almacenamiento lleno o no disponible: no pasa nada, simplemente no cachea
+  }
+}
+
+function invalidarCacheInvitados() {
+  try { sessionStorage.removeItem(CACHE_KEY_INVITADOS); } catch (e) { /* nada que hacer */ }
+}
+
 async function cargarInvitados() {
   if (MODO_DEMO) {
     return (window.INVITADOS && window.INVITADOS.grupos) ? window.INVITADOS.grupos : [];
   }
+
+  const cacheado = leerCacheInvitados();
+  if (cacheado) return cacheado;
+
   const resp = await fetch(SCRIPT_URL, { method: "GET" });
   const datos = await resp.json();
   if (!datos || !datos.ok) throw new Error((datos && datos.error) || "Respuesta inválida del servidor");
+
+  guardarCacheInvitados(datos.grupos || []);
   return datos.grupos || [];
 }
 
@@ -95,29 +134,67 @@ function construirIndiceInvitados(grupos) {
   return indice;
 }
 
-/* ---------- Búsqueda del invitado ---------- */
+/* ---------- Búsqueda del invitado ----------
+   Devuelve TODAS las coincidencias, no solo la primera: puede haber más
+   de una persona con el mismo nombre y apellidos en grupos distintos, y
+   en ese caso hay que dejar que el usuario elija cuál es (ver
+   renderElegirGrupo). Array vacío si no hay ninguna coincidencia. */
 function buscarInvitado(nombreIn, apellidosIn) {
   const indice = INDICE_INVITADOS || [];
 
   const nN = normaliza(nombreIn);
   const aTokens = normaliza(apellidosIn).split(" ").filter(Boolean);
-  if (!nN || aTokens.length === 0) return null;
+  if (!nN || aTokens.length === 0) return [];
 
+  const resultados = [];
   for (const entrada of indice) {
     const nombreOk = entrada.nombreNorm === nN || entrada.nombreNorm.startsWith(nN);
     // todos los apellidos escritos deben aparecer en los apellidos del invitado
     const apellidosOk = aTokens.every(t => entrada.apellidosNorm.includes(t));
     if (nombreOk && apellidosOk) {
-      return { grupo: entrada.grupo, miembroEncontrado: entrada.miembro };
+      resultados.push({ grupo: entrada.grupo, miembroEncontrado: entrada.miembro });
     }
   }
-  return null;
+  return resultados;
 }
 
 /* ---------- Referencias DOM ---------- */
 let elBuscar, elNombre, elApellidos, elAvisoBuscar;
-let elPaso1, elPaso2, elGrupoMsg, elAsistentes, elFormConfirmar, elEstado;
+let elPaso1, elPasoElegir, elCandidatos, elPaso2, elGrupoMsg, elAsistentes, elFormConfirmar, elEstado;
 let grupoActivo = null;
+
+/* ---------- Elegir entre varias coincidencias ----------
+   Cuando la búsqueda encuentra a más de una persona con el mismo nombre
+   y apellidos (en grupos distintos), se muestra una tarjeta por cada
+   coincidencia -con el grupo y el resto de acompañantes, para ayudar a
+   distinguirlas- y el usuario elige la suya antes de pasar al paso 2. */
+function renderElegirGrupo(resultados) {
+  elCandidatos.innerHTML = "";
+  resultados.forEach((resultado) => {
+    const encontrado = resultado.miembroEncontrado;
+    const anon = anonimiza(encontrado.nombre, encontrado.apellidos);
+    const otros = resultado.grupo.miembros
+      .filter(m => m !== encontrado)
+      .map(m => anonimiza(m.nombre, m.apellidos));
+
+    const card = document.createElement("div");
+    card.className = "asistente-card";
+    card.innerHTML = `
+      <h3>${anon}</h3>
+      <p class="pista" style="margin:0 0 12px">
+        Grupo: <strong>${escaparHTML(resultado.grupo.id || "(sin nombre)")}</strong>
+        ${otros.length ? " · Junto con: " + escaparHTML(otros.join(", ")) : ""}
+      </p>
+      <button type="button" class="btn btn--negro elegir-candidato">Soy yo, continuar →</button>
+    `;
+    card.querySelector(".elegir-candidato").addEventListener("click", () => renderPaso2(resultado));
+    elCandidatos.appendChild(card);
+  });
+
+  elPaso1.classList.add("oculto");
+  elPasoElegir.classList.remove("oculto");
+  elPasoElegir.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 /* ---------- Render del Paso 2 ---------- */
 function renderPaso2(resultado) {
@@ -245,6 +322,7 @@ function renderPaso2(resultado) {
 
   // Cambiar de paso
   elPaso1.classList.add("oculto");
+  if (elPasoElegir) elPasoElegir.classList.add("oculto");
   elPaso2.classList.remove("oculto");
   elEstado.hidden = true;
   elPaso2.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -321,6 +399,7 @@ async function enviar(datos) {
     setEstado("info", "⏳ Enviando tu confirmación...");
     await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: fd });
     // Con no-cors no podemos leer la respuesta; si no lanza error, lo damos por bueno.
+    invalidarCacheInvitados(); // que la próxima búsqueda en esta pestaña vea el estado nuevo
     setEstado("ok", "🎉 <strong>¡Confirmación recibida!</strong> Gracias, nos vemos en el festival.");
     exitoFinal();
   } catch (err) {
@@ -339,6 +418,7 @@ function exitoFinal() {
 /* ---------- Volver al paso 1 (buscar otro nombre) ---------- */
 function volverABuscar() {
   elPaso2.classList.add("oculto");
+  if (elPasoElegir) elPasoElegir.classList.add("oculto");
   elPaso1.classList.remove("oculto");
   elFormConfirmar.querySelector("#zona-formulario").classList.remove("oculto");
   elEstado.hidden = true;
@@ -380,6 +460,8 @@ document.addEventListener("DOMContentLoaded", () => {
   elApellidos     = document.getElementById("buscar-apellidos");
   elAvisoBuscar   = document.getElementById("aviso-buscar");
   elPaso1         = document.getElementById("paso1");
+  elPasoElegir    = document.getElementById("paso-elegir");
+  elCandidatos    = document.getElementById("candidatos-cont");
   elPaso2         = document.getElementById("paso2");
   elGrupoMsg      = document.getElementById("grupo-mensaje");
   elAsistentes    = document.getElementById("asistentes-cont");
@@ -399,20 +481,26 @@ document.addEventListener("DOMContentLoaded", () => {
   elBuscar.addEventListener("submit", (e) => {
     e.preventDefault();
     elAvisoBuscar.hidden = true;
-    const res = buscarInvitado(elNombre.value, elApellidos.value);
-    if (!res) {
+    const resultados = buscarInvitado(elNombre.value, elApellidos.value);
+    if (resultados.length === 0) {
       elAvisoBuscar.className = "aviso aviso--info";
       elAvisoBuscar.textContent =
         "No hemos podido encontrar a ese invitado/a. Prueba con otro nombre o revisa cómo está escrito. Si crees que es un error, escríbenos.";
       elAvisoBuscar.hidden = false;
       return;
     }
-    renderPaso2(res);
+    if (resultados.length === 1) {
+      renderPaso2(resultados[0]);
+    } else {
+      renderElegirGrupo(resultados);
+    }
   });
 
-  // Volver a buscar
+  // Volver a buscar (desde el paso 2 o desde el de elegir coincidencia)
   const volver = document.getElementById("btn-volver");
   if (volver) volver.addEventListener("click", volverABuscar);
+  const volverElegir = document.getElementById("btn-volver-elegir");
+  if (volverElegir) volverElegir.addEventListener("click", volverABuscar);
 
   // Paso 2: confirmar
   elFormConfirmar.addEventListener("submit", (e) => {

@@ -57,6 +57,19 @@
         <div id="aviso-buscar" class="aviso" role="status" aria-live="polite" hidden></div>
       </section>
 
+      <!-- ===== PASO 1B: ELEGIR ENTRE VARIAS COINCIDENCIAS =====
+           Se muestra solo si el nombre + apellidos introducidos coinciden
+           con más de una persona (en grupos distintos). Generado por
+           js/rsvp.js (renderElegirGrupo). -->
+      <section id="paso-elegir" class="seccion oculto" aria-labelledby="titulo-elegir">
+        <p style="margin-bottom:14px">
+          <button type="button" class="btn btn--amarillo" id="btn-volver-elegir">← Buscar otro nombre</button>
+        </p>
+        <h2 id="titulo-elegir">Hemos encontrado varias coincidencias</h2>
+        <p>Hay más de una persona con ese nombre y esos apellidos. Elige cuál eres tú:</p>
+        <div id="candidatos-cont"></div>
+      </section>
+
       <!-- ===== PASO 2: CONFIRMAR ===== -->
       <section id="paso2" class="seccion oculto" aria-labelledby="titulo-paso2">
         <p style="margin-bottom:14px">
