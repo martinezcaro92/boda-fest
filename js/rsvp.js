@@ -181,10 +181,7 @@ function renderElegirGrupo(resultados) {
     card.className = "asistente-card";
     card.innerHTML = `
       <h3>${anon}</h3>
-      <p class="pista" style="margin:0 0 12px">
-        Grupo: <strong>${escaparHTML(resultado.grupo.id || "(sin nombre)")}</strong>
-        ${otros.length ? " · Junto con: " + escaparHTML(otros.join(", ")) : ""}
-      </p>
+      ${otros.length ? `<p class="pista" style="margin:0 0 12px">Junto con: ${escaparHTML(otros.join(", "))}</p>` : ""}
       <button type="button" class="btn btn--negro elegir-candidato">Soy yo, continuar →</button>
     `;
     card.querySelector(".elegir-candidato").addEventListener("click", () => renderPaso2(resultado));
@@ -378,6 +375,7 @@ async function enviar(datos) {
 
   // MODO DEMOSTRACIÓN: no se envía nada
   if (MODO_DEMO) {
+    marcarComoRespondido(datos.asistentes);
     setEstado("demo",
       "🧪 <strong>Modo demostración.</strong> Todo válido: en producción esto se " +
       "habría enviado a Google Sheets. Pega la URL de tu Apps Script en <code>SCRIPT_URL</code> " +
@@ -399,7 +397,8 @@ async function enviar(datos) {
     setEstado("info", "⏳ Enviando tu confirmación...");
     await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: fd });
     // Con no-cors no podemos leer la respuesta; si no lanza error, lo damos por bueno.
-    invalidarCacheInvitados(); // que la próxima búsqueda en esta pestaña vea el estado nuevo
+    marcarComoRespondido(datos.asistentes); // refleja el cambio ya mismo, sin esperar a releer el servidor
+    invalidarCacheInvitados(); // que una recarga futura en esta pestaña también vea el estado nuevo
     setEstado("ok", "🎉 <strong>¡Confirmación recibida!</strong> Gracias, nos vemos en el festival.");
     exitoFinal();
   } catch (err) {
@@ -410,9 +409,25 @@ async function enviar(datos) {
   }
 }
 
+/* Actualiza en memoria el estado de cada asistente recién enviado, para
+   que si el usuario vuelve a buscar el mismo grupo en esta misma sesión
+   (sin recargar la página) lo vea ya como confirmado/declinado, en vez
+   de "pendiente" -el índice de búsqueda comparte los mismos objetos que
+   grupoActivo, así que esto también deja la búsqueda al día-. */
+function marcarComoRespondido(asistentes) {
+  if (!grupoActivo) return;
+  asistentes.forEach(a => {
+    const m = grupoActivo.miembros.find(mm =>
+      (a.fila != null && mm.fila === a.fila) || nombreCompleto(mm) === a.nombreCompleto
+    );
+    if (m) m.estado = a.asiste === "Sí" ? "si" : "no";
+  });
+}
+
 function exitoFinal() {
-  // Ocultamos el formulario tras confirmar
+  // Ocultamos el formulario y el mensaje de bienvenida tras confirmar
   elFormConfirmar.querySelector("#zona-formulario").classList.add("oculto");
+  elGrupoMsg.hidden = true;
 }
 
 /* ---------- Volver al paso 1 (buscar otro nombre) ---------- */
