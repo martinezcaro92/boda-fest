@@ -495,9 +495,6 @@ main {
   grid-template-columns: 1fr;
   gap: 18px;
 }
-@media (min-width: 640px) {
-  .iban-grupo { grid-template-columns: 1fr 1fr; }
-}
 .iban-caja {
   border: var(--borde);
   border-radius: var(--radio);
