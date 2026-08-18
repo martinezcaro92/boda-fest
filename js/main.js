@@ -126,26 +126,28 @@ function iniciarCuentaAtras() {
 
 /* ---------- COPIAR IBAN ---------- */
 function iniciarCopiarIban() {
-  const btn = document.getElementById('btn-copiar-iban');
-  if (!btn) return;
-  const aviso = document.getElementById('iban-copiado');
+  const botones = document.querySelectorAll('.btn-copiar-iban');
 
-  btn.addEventListener('click', async () => {
-    const iban = (btn.dataset.iban || '').replace(/\s+/g, '');
-    try {
-      await navigator.clipboard.writeText(iban);
-      if (aviso) aviso.textContent = '✅ ¡IBAN copiado al portapapeles!';
-    } catch (e) {
-      // Método alternativo si clipboard no está disponible (p. ej. file://)
-      const tmp = document.createElement('textarea');
-      tmp.value = iban;
-      document.body.appendChild(tmp);
-      tmp.select();
-      try { document.execCommand('copy'); if (aviso) aviso.textContent = '✅ ¡IBAN copiado!'; }
-      catch (_) { if (aviso) aviso.textContent = 'Copia manualmente: ' + iban; }
-      document.body.removeChild(tmp);
-    }
-    if (aviso) setTimeout(() => { aviso.textContent = ''; }, 4000);
+  botones.forEach((btn) => {
+    const aviso = btn.closest('.iban-caja')?.querySelector('.copiado-aviso');
+
+    btn.addEventListener('click', async () => {
+      const iban = (btn.dataset.iban || '').replace(/\s+/g, '');
+      try {
+        await navigator.clipboard.writeText(iban);
+        if (aviso) aviso.textContent = '✅ ¡IBAN copiado al portapapeles!';
+      } catch (e) {
+        // Método alternativo si clipboard no está disponible (p. ej. file://)
+        const tmp = document.createElement('textarea');
+        tmp.value = iban;
+        document.body.appendChild(tmp);
+        tmp.select();
+        try { document.execCommand('copy'); if (aviso) aviso.textContent = '✅ ¡IBAN copiado!'; }
+        catch (_) { if (aviso) aviso.textContent = 'Copia manualmente: ' + iban; }
+        document.body.removeChild(tmp);
+      }
+      if (aviso) setTimeout(() => { aviso.textContent = ''; }, 4000);
+    });
   });
 }
 

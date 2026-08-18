@@ -37,22 +37,35 @@
         </p>
       </section>
 
-      <!-- ===== CUADRO IBAN ===== -->
+      <!-- ===== CUADROS IBAN ===== -->
       <section class="seccion" aria-labelledby="titulo-iban">
-        <h2 id="titulo-iban" style="text-align:center">Nuestra cuenta</h2>
-        <div class="iban-caja">
-          <p class="titular"><strong>Titulares:</strong> Ana Rubio Cánovas y Adrián González Abellán</p>
-          <!-- EDITA aquí el IBAN real (y el data-iban del botón) -->
-          <p class="iban" id="iban-valor">ES00 0000 0000 0000 0000 0000</p>
-          <button class="btn btn--verde" id="btn-copiar-iban"
-                  data-iban="ES00 0000 0000 0000 0000 0000">
-            📋 Copiar IBAN
-          </button>
-          <p class="copiado-aviso" id="iban-copiado" aria-live="polite"></p>
+        <h2 id="titulo-iban" style="text-align:center">Nuestras cuentas</h2>
+        <div class="iban-grupo">
+          <div class="iban-caja">
+            <p class="titular"><strong>Titular:</strong> Ana Rubio Cánovas</p>
+            <!-- EDITA aquí el IBAN real de Ana (y el data-iban del botón) -->
+            <p class="iban" id="iban-valor-ana">ES08 3058 0262 4628 2000 6004</p>
+            <button class="btn btn--verde btn-copiar-iban"
+                    data-iban="ES08 3058 0262 4628 2000 6004">
+              📋 Copiar IBAN Ana
+            </button>
+            <p class="copiado-aviso" aria-live="polite"></p>
+          </div>
+          <div class="iban-caja">
+            <p class="titular"><strong>Titular:</strong> Adrián González Abellán</p>
+            <!-- EDITA aquí el IBAN real de Adrián (y el data-iban del botón) -->
+            <p class="iban" id="iban-valor-adrian">ES47 0049 5435 9022 1614 9025</p>
+            <button class="btn btn--verde btn-copiar-iban"
+                    data-iban="ES47 0049 5435 9022 1614 9025">
+              📋 Copiar IBAN Adrián
+            </button>
+            <p class="copiado-aviso" aria-live="polite"></p>
+          </div>
         </div>
         <p class="pista" style="text-align:center; margin-top:14px">
-          [Sustituye el IBAN de ejemplo por el real en dos sitios: el texto
-          <code>#iban-valor</code> y el atributo <code>data-iban</code> del botón.]
+          [Sustituye cada IBAN de ejemplo por el real en dos sitios de su cuadro: el texto
+          <code>#iban-valor-ana</code> / <code>#iban-valor-adrian</code> y el atributo
+          <code>data-iban</code> de su botón.]
         </p>
       </section>
 
