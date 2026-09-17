@@ -13,7 +13,6 @@ Actúa como un experto en diseño y desarrollo de páginas web para bodas. Quier
 - Monograma / nombres cortos para la cabecera y el pie: [p. ej. “PJ & G” o los nombres completos]
 - Idioma de la web: español
 - Fecha y hora de la boda: sábado 17 de octubre de 2026, 12:30
-- Fecha límite para confirmar asistencia: 15 de septiembre de 2026
 - Lugar de la ceremonia (nombre, dirección y ciudad): Jardines del Restaurante Venta de la Rata, Totana
 - Lugar del cóctel: Piscina del Restaurante Venta de la Rata, Totana
 - Lugar de la celebración / banquete (nombre, dirección y ciudad): Salón del Restaurante Venta de la Rata, Totana
@@ -31,7 +30,7 @@ Genera estas secciones (quita o añade según lo que yo haya indicado arriba):
 2. **Información básica**: día y hora, **cuenta atrás** en vivo hasta la boda, lugar de la ceremonia e **itinerario** del día (p. ej. ceremonia, cóctel, comida, fiesta, tentempié) presentado como una línea temporal.
 3. **Cómo llegar**: indicaciones a la ceremonia y a la celebración y enlaces a mapa de las dos ubicaciones.
 4. **Regalo de boda**: un texto introductorio cálido y un cuadro con el número de cuenta y un botón para copiar el IBAN.
-5. **Preguntas frecuentes** (4–5): incluye al menos “¿puedo llevar a mis hijos?” (boda con niños) y temas como código de vestimenta, fecha límite de confirmación y resolución de dudas para las diferentes ubicaciones.
+5. **Preguntas frecuentes** (4–5): incluye al menos “¿puedo llevar a mis hijos?” (boda con niños) y temas como código de vestimenta, confirmación de asistencia y resolución de dudas para las diferentes ubicaciones.
 6. **Formulario de asistencia** (ver requisitos técnicos más abajo).
 
 

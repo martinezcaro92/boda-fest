@@ -92,6 +92,17 @@ function invalidarCacheInvitados() {
   try { sessionStorage.removeItem(CACHE_KEY_INVITADOS); } catch (e) { /* nada que hacer */ }
 }
 
+async function pedirInvitadosAlServidor() {
+  const resp = await fetch(SCRIPT_URL, { method: "GET" });
+  if (!resp.ok) throw new Error("HTTP " + resp.status);
+  const datos = await resp.json();
+  if (!datos || !datos.ok) throw new Error((datos && datos.error) || "Respuesta inválida del servidor");
+  return datos.grupos || [];
+}
+
+/* Apps Script puede fallar de forma puntual (cold start, hipo de red);
+   antes de rendirnos y mostrar el aviso de error, lo reintentamos una
+   vez tras una breve espera. */
 async function cargarInvitados() {
   if (MODO_DEMO) {
     return (window.INVITADOS && window.INVITADOS.grupos) ? window.INVITADOS.grupos : [];
@@ -100,12 +111,22 @@ async function cargarInvitados() {
   const cacheado = leerCacheInvitados();
   if (cacheado) return cacheado;
 
-  const resp = await fetch(SCRIPT_URL, { method: "GET" });
-  const datos = await resp.json();
-  if (!datos || !datos.ok) throw new Error((datos && datos.error) || "Respuesta inválida del servidor");
+  let grupos;
+  try {
+    grupos = await pedirInvitadosAlServidor();
+  } catch (err) {
+    console.error("Fallo al cargar invitados, reintentando…", err);
+    await new Promise(r => setTimeout(r, 1500));
+    try {
+      grupos = await pedirInvitadosAlServidor();
+    } catch (err2) {
+      console.error("Fallo al cargar invitados (reintento agotado)", err2);
+      throw err2;
+    }
+  }
 
-  guardarCacheInvitados(datos.grupos || []);
-  return datos.grupos || [];
+  guardarCacheInvitados(grupos);
+  return grupos;
 }
 
 /* ---------- Índice de invitados (precalculado una sola vez) ----------

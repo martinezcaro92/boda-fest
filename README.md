@@ -20,10 +20,7 @@ tiemposdeamor/
 │   └── styles.css      Hoja de estilos ÚNICA compartida por todas las páginas
 ├── js/
 │   ├── main.js         Cabecera + nav + pie (compartidos), menú móvil, cuenta atrás, copiar IBAN
-│   ├── invitados.js    Lista de invitados de DEMOSTRACIÓN (la real vive en Google Sheets)
 │   └── rsvp.js         Búsqueda (lee la Sheet en vivo) + formulario + envío a Google Sheets
-├── data/
-│   └── invitados.json  Copia legible de la lista de demostración
 ├── img/
 │   ├── favicon.svg     Corazón rojo "TDAF" sobre amarillo (ya hecho)
 │   └── LEEME.txt       Dónde poner tu foto/vídeo y el mosaico
@@ -55,11 +52,11 @@ tiemposdeamor/
    (hay marcadores `[...]`). Actualiza también el enlace de Google Maps de la fiesta
    cuando tengas la ubicación.
 6. **Lista de invitados** → se edita en la **Google Sheet** (pestaña "Invitados"),
-   no en el repo. `js/invitados.js` / `data/invitados.json` son solo datos de
-   ejemplo para el modo demostración (mientras no tengas `SCRIPT_URL` configurada).
+   no en el repo.
 7. **Formulario → Google Sheets** → pega tu URL en `SCRIPT_URL` (`js/rsvp.js`).
-   Mientras contenga `PEGA_AQUI`, la web está en **modo demostración** (busca en la
-   lista de ejemplo y valida/enseña el resultado, pero no lee ni envía nada real).
+   Mientras contenga `PEGA_AQUI`, la web está en **modo demostración** (usa una
+   lista de invitados vacía y valida/enseña el resultado, pero no lee ni envía
+   nada real).
 
 ---
 
@@ -104,7 +101,7 @@ las pestañas "Invitados" y "Confirmados", rellenar tu lista real en "Invitados"
 pegar el script, desplegar como *Aplicación web* con "Ejecutar como: yo" y
 "Quién tiene acceso: cualquier usuario", copiar la URL `/exec` y pegarla en
 `SCRIPT_URL`). Hasta que no lo hagas, la web funciona en **modo demostración**
-con la lista de ejemplo de `js/invitados.js`.
+sin invitados reales.
 
 ---
 
